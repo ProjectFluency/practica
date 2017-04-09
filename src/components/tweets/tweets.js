@@ -17,8 +17,8 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [
-        "Prashish: hi! love. How are you :)",
-        "girl: I am good love"
+        // "Prashish: hi! love. How are you :)",
+        // "girl: I am good love"
       ]
     };
   },
@@ -32,8 +32,11 @@ module.exports = React.createClass({
         this.setState({
           username: username
         });
+
+        this.firebaseListen();
       }
     });
+
   },
   render: function() {
     if (!this.state.username) {
@@ -72,6 +75,16 @@ module.exports = React.createClass({
 
     }
   },
+  firebaseListen: function() {
+    this.props.firebase.database().ref("/chat").on('value', (snapshot) => {
+
+      if (snapshot.val()) {
+        this.setState({
+          chat: snapshot.val()
+        })
+      }
+    });
+  },
   chatHistory: function() {
     return this.state.chat.map((message, index) => {
       return (
@@ -85,13 +98,13 @@ module.exports = React.createClass({
   },
   onPressSend: function(){
 
-//test
-      const newStates = {
-        chat: this.state.chat.concat([this.state.username + " : " + this.state.message])
-      };
-
-      this.setState(newStates)
-//test
+    // //test
+    // const newStates = {
+    //   chat: this.state.chat.concat([this.state.username + " : " + this.state.message])
+    // };
+    //
+    // this.setState(newStates)
+    // //test
 
     const path = "/message";
 
