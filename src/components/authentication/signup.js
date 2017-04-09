@@ -65,57 +65,22 @@ module.exports = React.createClass({
   onPress: function() {
     if(this.state.password === this.state.passwordConfirmation) {
 
-      const url = config.server + API.signup;
-      const fetchOption = {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: this.state.username,
-          password: this.state.password
-        })
-      };
-
-      fetcher.json(url, fetchOption)
+      this.props.firebase.auth().createUserWithEmailAndPassword(this.state.username, this.state.password)
       .then((response) => {
+        this.setState({
+          username: ''
+        });
 
-        const body = response.body;
+        AsyncStorage.setItem('@MySuperStoreAuthentication:username', response.email);
 
-        if(response.ok) {
-
-          if(body && body.signup === true) {
-            AsyncStorage.setItem('@MySuperStoreAuthentication:username', this.state.username);
-
-            this.props.navigator.immediatelyResetRouteStack([
-              {name: 'tweets'}
-            ]);
-          } else {
-            this.setState({
-              errorMessage : body.message
-            });
-          }
-
-        } else {
-
-          const newState = {};
-
-          if(body && body.signup === false) {
-            newState.errorMessage = (body.message ? body.message : 'Signup unsuccessfull');
-          } else {
-            newState.errorMessage = 'Unknown signup problem';
-          }
-
-          this.setState(newState);
-        }
-
+        this.props.navigator.immediatelyResetRouteStack([
+          {name: 'tweets'}
+        ]);
       })
       .catch((err) => {
         this.setState({
-          errorMessage: 'There was a problem in the signup'
+          errorMessage: err.message
         });
-        console.log(err);
       });
 
       this.setState({

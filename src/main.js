@@ -6,6 +6,8 @@ const {
   Navigator
 } = ReactNative;
 
+const firebase = require('./init/firebase').getConnection();
+
 const Signin = require('./components/authentication/signin');
 const Signup = require('./components/authentication/signup');
 const Tweets = require('./components/tweets/tweets');
@@ -21,7 +23,7 @@ module.exports = React.createClass({
   renderScene: function(route, navigator) {
     const Component = ROUTES[route.name];
 
-    return <Component route={route} navigator={navigator}/>;
+    return <Component route={route} navigator={navigator} firebase={firebase}/>;
   },
   render: function() {
     return (
