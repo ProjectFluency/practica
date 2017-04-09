@@ -1,24 +1,3 @@
-// const firebaseAdmin = require("firebase-admin");
-// const serviceAccount = require('../config/firebaseServiceAccountKey.json');
-//
-// const credential ={
-//   credential: firebaseAdmin.credential.cert(serviceAccount),
-//   databaseURL: config.firebase.baseUrl
-// };
-//
-// let firebaseConnection = firebaseAdmin.initializeApp(credential);
-//
-// function getFirebaseConnection() {
-//   if(!firebaseConnection) {
-//     firebaseConnection = firebase.initializeApp(credential);
-//   }
-//
-//   return firebaseConnection;
-// }
-//
-// module.exports.getConnection = getFirebaseConnection;
-
-
 const firebase = require("firebase");
 
 const credential = {
