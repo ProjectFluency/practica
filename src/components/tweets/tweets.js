@@ -17,8 +17,8 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [
-        // "Prashish: hi! love. How are you :)",
-        // "girl: I am good love"
+        {username: "prashish@gmail.com", message:"hi! love. How are you :)"},
+        {username: "girl", message: "I am good love. XOXOXOXOXO"}
       ]
     };
   },
@@ -33,7 +33,7 @@ module.exports = React.createClass({
           username: username
         });
 
-        this.firebaseListen();
+        //this.firebaseListen();
       }
     });
 
@@ -86,11 +86,11 @@ module.exports = React.createClass({
     });
   },
   chatHistory: function() {
-    return this.state.chat.map((message, index) => {
+    return this.state.chat.map((content, index) => {
       return (
         <View key={index + 1}>
         <Text>
-        {message}
+        {content.username + " : " + content.message}
         </Text>
         </View>
       );
@@ -98,25 +98,26 @@ module.exports = React.createClass({
   },
   onPressSend: function(){
 
-    // //test
-    // const newStates = {
-    //   chat: this.state.chat.concat([this.state.username + " : " + this.state.message])
-    // };
+    //test
+    const newStates = {
+      chat: this.state.chat.concat([{username: this.state.username, message: this.state.message}]),
+      message: ''
+    };
+
+    this.setState(newStates)
+    //test
+
+    // const path = "/chat";
     //
-    // this.setState(newStates)
-    // //test
-
-    const path = "/message";
-
-    this.props.firebase.database().ref(path).set({message: this.state.message})
-    .then((response) => {
-      this.setState({
-        message: ''
-      })
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    // this.props.firebase.database().ref(path).push(this.state.message)
+    // .then((response) => {
+    //   this.setState({
+    //     message: ''
+    //   })
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
   },
   onPressLogOut: function() {
     AsyncStorage.removeItem('@guff:username');
