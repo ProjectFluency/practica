@@ -51,59 +51,24 @@ module.exports = React.createClass({
     );
   },
   onPress: function() {
-    //log the user in
-    const url = config.server + API.login;
-    const fetchOption = {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password
-      })
-    };
 
-    fetcher.json(url, fetchOption)
-      .then((response) => {
-
-        const body = response.body;
-
-        if(response.ok) {
-
-          if(body && body.login === true) {
-            AsyncStorage.setItem('@MySuperStoreAuthentication:username', this.state.username);
-
-            this.props.navigator.immediatelyResetRouteStack([
-              {name: 'tweets'}
-            ]);
-          } else {
-            this.setState({
-              errorMessage : body.message
-            });
-          }
-
-        } else {
-
-          const newState = {};
-
-          if(body && body.login === false) {
-            newState.errorMessage = (body.message ? body.message : 'Login unsuccessfull');
-          } else {
-            newState.errorMessage = 'Unknown login problem';
-          }
-
-          this.setState(newState);
-        }
-
-      })
-      .catch((err) => {
-        this.setState({
-          errorMessage: 'There was a problem in the login'
-        });
-        console.log(err);
+    this.props.firebase.auth().signInWithEmailAndPassword(this.state.username, this.state.password)
+    .then((response) => {
+      this.setState({
+        username: ''
       });
+
+      AsyncStorage.setItem('@MySuperStoreAuthentication:username', response.email);
+
+      this.props.navigator.immediatelyResetRouteStack([
+        {name: 'tweets'}
+      ]);
+    })
+    .catch((err) => {
+      this.setState({
+        errorMessage: err.message
+      });
+    });
 
       this.setState({
         password: ''
