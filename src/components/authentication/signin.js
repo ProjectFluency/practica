@@ -23,7 +23,7 @@ module.exports = React.createClass({
     }
   },
   componentWillMount: function(){
-    AsyncStorage.removeItem('@MySuperStoreAuthentication:username');
+    AsyncStorage.removeItem('@guff:username');
   },
   render: function() {
     return (
@@ -58,7 +58,7 @@ module.exports = React.createClass({
         username: ''
       });
 
-      AsyncStorage.setItem('@MySuperStoreAuthentication:username', response.email);
+      AsyncStorage.setItem('@guff:username', response.email);
 
       this.props.navigator.immediatelyResetRouteStack([
         {name: 'tweets'}
