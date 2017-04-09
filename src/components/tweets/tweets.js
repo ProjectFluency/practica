@@ -16,10 +16,7 @@ module.exports = React.createClass({
     return {
       username: null,
       message: '',
-      chat: [
-        {username: "prashish@gmail.com", message:"hi! love. How are you :)"},
-        {username: "girl", message: "I am good love. XOXOXOXOXO"}
-      ]
+      chat: []
     };
   },
   componentWillMount: function(){
@@ -33,7 +30,7 @@ module.exports = React.createClass({
           username: username
         });
 
-        //this.firebaseListen();
+        this.firebaseListen();
       }
     });
 
@@ -76,12 +73,19 @@ module.exports = React.createClass({
     }
   },
   firebaseListen: function() {
-    this.props.firebase.database().ref("/chat").on('value', (snapshot) => {
+    this.props.firebase.database().ref("/public_chat").on('value', (snapshot) => {
 
       if (snapshot.val()) {
-        this.setState({
-          chat: snapshot.val()
-        })
+        console.log(snapshot.val());
+        const record = snapshot.val();
+
+          for (var key in record) {
+            if (record.hasOwnProperty(key)) {
+              this.setState({
+                chat: this.state.chat.concat([record[key]]),
+              });
+            }
+          }
       }
     });
   },
@@ -98,26 +102,20 @@ module.exports = React.createClass({
   },
   onPressSend: function(){
 
-    //test
-    const newStates = {
-      chat: this.state.chat.concat([{username: this.state.username, message: this.state.message}]),
-      message: ''
-    };
+    const path = "/public_chat";
 
-    this.setState(newStates)
-    //test
-
-    // const path = "/chat";
-    //
-    // this.props.firebase.database().ref(path).push(this.state.message)
-    // .then((response) => {
-    //   this.setState({
-    //     message: ''
-    //   })
-    // })
-    // .catch((err) => {
-    //   console.log(err);
-    // });
+    this.props.firebase.database().ref(path).push({
+      username: this.state.username,
+      message: this.state.message
+    })
+    .then((response) => {
+      this.setState({
+        message: ''
+      })
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   },
   onPressLogOut: function() {
     AsyncStorage.removeItem('@guff:username');
