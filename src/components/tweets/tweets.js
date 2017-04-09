@@ -52,6 +52,8 @@ module.exports = React.createClass({
   onPressLogOut: function() {
     AsyncStorage.removeItem('@MySuperStoreAuthentication:username');
 
+    this.props.firebase.auth().signOut();
+
     this.props.navigator.immediatelyResetRouteStack([
       {name: 'signin'}
     ]);
