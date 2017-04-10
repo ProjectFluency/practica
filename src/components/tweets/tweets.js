@@ -78,14 +78,17 @@ module.exports = React.createClass({
       if (snapshot.val()) {
         console.log(snapshot.val());
         const record = snapshot.val();
+        const chat = [];
 
-          for (var key in record) {
-            if (record.hasOwnProperty(key)) {
-              this.setState({
-                chat: this.state.chat.concat([record[key]]),
-              });
-            }
+        for (var key in record) {
+          if (record.hasOwnProperty(key)) {
+            chat = chat.concat([record[key]])
           }
+        }
+
+        this.setState({
+          chat: chat,
+        });
       }
     });
   },
