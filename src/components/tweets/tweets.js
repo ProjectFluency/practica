@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactNative = require('react-native');
+import { GiftedChat } from 'react-native-gifted-chat';
 
 const {
   View,
@@ -16,7 +17,8 @@ module.exports = React.createClass({
     return {
       username: null,
       message: '',
-      chat: []
+      chat: [],
+      sent: [],
     };
   },
   componentWillMount: function(){
@@ -36,40 +38,16 @@ module.exports = React.createClass({
 
   },
   render: function() {
-    if (!this.state.username) {
-
+    if (!this.state.username || this.state.chat.length === 0) {
       return (
         <View style={[styles.container]}>
         <Text>Loading...</Text>
         </View>
       );
-
     } else {
-
-      return (
-        <View style={[styles.container]}>
-        <View>
-        <Text>Welcome {this.state.username}!!!</Text>
-        <Button text={'Log Out'} onPress={this.onPressLogOut} />
-        </View>
-
-        <View>
-        <Text style={[styles.label]}>Chat History: </Text>
-        {this.chatHistory()}
-        </View>
-
-        <View>
-        <Text style={[styles.label]}>Enter a message: </Text>
-        <TextInput
-        style={[styles.input]}
-        value={this.state.message}
-        onChangeText={(text) => this.setState({message: text})}
-        />
-        <Button text={'Send'} onPress={this.onPressSend} />
-        </View>
-        </View>
-      );
-
+      return (<View style={styles.container}>
+                {this.chatHistory()}
+              </View>);
     }
   },
   firebaseListen: function() {
@@ -88,29 +66,41 @@ module.exports = React.createClass({
 
         this.setState({
           chat: chat,
+          sent: [],
         });
       }
     });
   },
   chatHistory: function() {
-    return this.state.chat.map((content, index) => {
-      return (
-        <View key={index + 1}>
-        <Text>
-        {content.username + " : " + content.message}
-        </Text>
-        </View>
-      );
-    });
+    var user_ids = {"sbc@gmail.com": 0,
+                    "prashish@gmail.com": 1,
+                    "prabhasp@stanford.edu": 2};
+    var massageMessage = (content, index) => {
+        return {_id: index,
+            text: content.message,
+            createdAt: new Date(Date.UTC(2016, 7, 30, 17, index, 0)),
+            user: {
+                _id: user_ids[content.username] || 99,
+                name: content.username,
+                avatar: ''
+            },
+        };
+    };
+    var messages = this.state.chat.map(massageMessage);
+    var allMessages = messages.concat(this.state.sent.map(massageMessage));
+    allMessages.reverse();
+    return(<GiftedChat messages={allMessages}
+                       user={{ _id: user_ids[this.state.username] || 99,
+                       name: this.state.username}}
+      onSend={this.onPressSend} />);
   },
-  onPressSend: function(){
-
+  processMessage: function(messageObj){
     const path = "/public_chat";
+    var messageObj = {username: this.state.username,
+                      message: messageObj.text};
+    this.setState({sent: this.state.sent.push(messageObj)});
 
-    this.props.firebase.database().ref(path).push({
-      username: this.state.username,
-      message: this.state.message
-    })
+    this.props.firebase.database().ref(path).push(messageObj)
     .then((response) => {
       this.setState({
         message: ''
@@ -119,6 +109,9 @@ module.exports = React.createClass({
     .catch((err) => {
       console.log(err);
     });
+  },
+  onPressSend: function(messages = []) {
+    messages.map(this.processMessage);
   },
   onPressLogOut: function() {
     AsyncStorage.removeItem('@guff:username');
@@ -134,8 +127,6 @@ module.exports = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
   },
   input: {
     padding: 4,
