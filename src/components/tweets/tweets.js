@@ -14,6 +14,10 @@ const {
 const Button = require('../common/button');
 const DATE_FMT = 'MMM D YYYY HH:mm:ss';
 
+function idFromName(fullname) {
+    return fullname.split(" ")[0].toLowerCase();
+}
+
 module.exports = React.createClass({
   getInitialState: function() {
     return {
@@ -79,7 +83,7 @@ module.exports = React.createClass({
             text: content.message.content,
             createdAt: moment.utc(content.created_at, DATE_FMT),
             user: {
-                _id: content.user.id,
+                _id: idFromName(content.user.name),
                 name: content.user.name,
             },
         };
@@ -88,9 +92,9 @@ module.exports = React.createClass({
     console.log(this.state.sent);
     messages.reverse();
     return(<GiftedChat messages={messages}
-                       user={{ _id: "1",
-                       name: this.state.username}}
-      onSend={this.onPressSend} />);
+                       user={{ _id: idFromName(this.state.username),
+                               name: this.state.username}}
+                       onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){
     const path = "/messages/public_chat";
@@ -98,7 +102,7 @@ module.exports = React.createClass({
     var serverMsg = {message: {content: messageObj.text,
                                content_type: "text"},
                      created_at: moment().format(DATE_FMT),
-                     user: {id: "1", name: this.state.username}};
+                     user: {id: this.state.username, name: this.state.username}};
     console.log(serverMsg);
     this.props.firebase.database().ref(path).push(serverMsg)
     .then((response) => {
