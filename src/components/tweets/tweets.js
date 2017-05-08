@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactNative = require('react-native');
+const moment = require('moment');
 import { GiftedChat } from 'react-native-gifted-chat';
 
 const {
@@ -11,6 +12,7 @@ const {
 } = ReactNative;
 
 const Button = require('../common/button');
+const DATE_FMT = 'MMM D YYYY HH:mm:ss';
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -51,7 +53,7 @@ module.exports = React.createClass({
     }
   },
   firebaseListen: function() {
-    this.props.firebase.database().ref("/public_chat").on('value', (snapshot) => {
+    this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
 
       if (snapshot.val()) {
         console.log(snapshot.val());
@@ -72,35 +74,33 @@ module.exports = React.createClass({
     });
   },
   chatHistory: function() {
-    var user_ids = {"sbc@gmail.com": 0,
-                    "prashish@gmail.com": 1,
-                    "prabhasp@stanford.edu": 2};
     var massageMessage = (content, index) => {
         return {_id: index,
-            text: content.message,
-            createdAt: new Date(Date.UTC(2016, 7, 30, 17, index, 0)),
+            text: content.message.content,
+            createdAt: moment.utc(content.created_at, DATE_FMT),
             user: {
-                _id: user_ids[content.username] || 99,
-                name: content.username,
-                avatar: ''
+                _id: content.user.id,
+                name: content.user.name,
             },
         };
     };
     var messages = this.state.chat.map(massageMessage);
-    var allMessages = messages.concat(this.state.sent.map(massageMessage));
-    allMessages.reverse();
-    return(<GiftedChat messages={allMessages}
-                       user={{ _id: user_ids[this.state.username] || 99,
+    console.log(this.state.sent);
+    messages.reverse();
+    return(<GiftedChat messages={messages}
+                       user={{ _id: "1",
                        name: this.state.username}}
       onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){
-    const path = "/public_chat";
-    var messageObj = {username: this.state.username,
-                      message: messageObj.text};
-    this.setState({sent: this.state.sent.push(messageObj)});
-
-    this.props.firebase.database().ref(path).push(messageObj)
+    const path = "/messages/public_chat";
+    console.log(messageObj);
+    var serverMsg = {message: {content: messageObj.text,
+                               content_type: "text"},
+                     created_at: moment().format(DATE_FMT),
+                     user: {id: "1", name: this.state.username}};
+    console.log(serverMsg);
+    this.props.firebase.database().ref(path).push(serverMsg)
     .then((response) => {
       this.setState({
         message: ''
