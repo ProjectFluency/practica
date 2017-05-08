@@ -10,7 +10,8 @@
     "firebase": "^3.7.5",
     "firebase-admin": "^4.2.0",
     "react": "16.0.0-alpha.6",
-    "react-native": "0.43.2"
+    "react-native": "0.43.2",
+    "react-native-gifted-chat": "^0.1.4"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
