@@ -79,9 +79,11 @@ module.exports = React.createClass({
   },
   chatHistory: function() {
     var massageMessage = (content, index) => {
+        var localized = moment.utc(content.created_at, DATE_FMT)
+                        .local().format(DATE_FMT);
         return {_id: index,
             text: content.message.content,
-            createdAt: moment.utc(content.created_at, DATE_FMT),
+            createdAt: new Date(localized),
             user: {
                 _id: idFromName(content.user.name),
                 name: content.user.name,
@@ -101,7 +103,7 @@ module.exports = React.createClass({
     console.log(messageObj);
     var serverMsg = {message: {content: messageObj.text,
                                content_type: "text"},
-                     created_at: moment().format(DATE_FMT),
+                     created_at: moment().utc().format(DATE_FMT),
                      user: {id: this.state.username, name: this.state.username}};
     console.log(serverMsg);
     this.props.firebase.database().ref(path).push(serverMsg)
