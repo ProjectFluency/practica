@@ -1,5 +1,7 @@
 const React = require('react');
 const ReactNative = require('react-native');
+const moment = require('moment');
+import { GiftedChat } from 'react-native-gifted-chat';
 
 const {
   View,
@@ -10,13 +12,19 @@ const {
 } = ReactNative;
 
 const Button = require('../common/button');
+const DATE_FMT = 'MMM D YYYY HH:mm:ss';
+
+function idFromName(fullname) {
+    return fullname.split(" ")[0].toLowerCase();
+}
 
 module.exports = React.createClass({
   getInitialState: function() {
     return {
       username: null,
       message: '',
-      chat: []
+      chat: [],
+      sent: [],
     };
   },
   componentWillMount: function(){
@@ -36,44 +44,20 @@ module.exports = React.createClass({
 
   },
   render: function() {
-    if (!this.state.username) {
-
+    if (!this.state.username || this.state.chat.length === 0) {
       return (
         <View style={[styles.container]}>
         <Text>Loading...</Text>
         </View>
       );
-
     } else {
-
-      return (
-        <View style={[styles.container]}>
-        <View>
-        <Text>Welcome {this.state.username}!!!</Text>
-        <Button text={'Log Out'} onPress={this.onPressLogOut} />
-        </View>
-
-        <View>
-        <Text style={[styles.label]}>Chat History: </Text>
-        {this.chatHistory()}
-        </View>
-
-        <View>
-        <Text style={[styles.label]}>Enter a message: </Text>
-        <TextInput
-        style={[styles.input]}
-        value={this.state.message}
-        onChangeText={(text) => this.setState({message: text})}
-        />
-        <Button text={'Send'} onPress={this.onPressSend} />
-        </View>
-        </View>
-      );
-
+      return (<View style={styles.container}>
+                {this.chatHistory()}
+              </View>);
     }
   },
   firebaseListen: function() {
-    this.props.firebase.database().ref("/public_chat").on('value', (snapshot) => {
+    this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
 
       if (snapshot.val()) {
         console.log(snapshot.val());
@@ -88,29 +72,41 @@ module.exports = React.createClass({
 
         this.setState({
           chat: chat,
+          sent: [],
         });
       }
     });
   },
   chatHistory: function() {
-    return this.state.chat.map((content, index) => {
-      return (
-        <View key={index + 1}>
-        <Text>
-        {content.username + " : " + content.message}
-        </Text>
-        </View>
-      );
-    });
+    var massageMessage = (content, index) => {
+        var localized = moment.utc(content.created_at, DATE_FMT)
+                        .local().format(DATE_FMT);
+        return {_id: index,
+            text: content.message.content,
+            createdAt: new Date(localized),
+            user: {
+                _id: idFromName(content.user.name),
+                name: content.user.name,
+            },
+        };
+    };
+    var messages = this.state.chat.map(massageMessage);
+    console.log(this.state.sent);
+    messages.reverse();
+    return(<GiftedChat messages={messages}
+                       user={{ _id: idFromName(this.state.username),
+                               name: this.state.username}}
+                       onSend={this.onPressSend} />);
   },
-  onPressSend: function(){
-
-    const path = "/public_chat";
-
-    this.props.firebase.database().ref(path).push({
-      username: this.state.username,
-      message: this.state.message
-    })
+  processMessage: function(messageObj){
+    const path = "/messages/public_chat";
+    console.log(messageObj);
+    var serverMsg = {message: {content: messageObj.text,
+                               content_type: "text"},
+                     created_at: moment().utc().format(DATE_FMT),
+                     user: {id: this.state.username, name: this.state.username}};
+    console.log(serverMsg);
+    this.props.firebase.database().ref(path).push(serverMsg)
     .then((response) => {
       this.setState({
         message: ''
@@ -119,6 +115,9 @@ module.exports = React.createClass({
     .catch((err) => {
       console.log(err);
     });
+  },
+  onPressSend: function(messages = []) {
+    messages.map(this.processMessage);
   },
   onPressLogOut: function() {
     AsyncStorage.removeItem('@guff:username');
@@ -134,8 +133,6 @@ module.exports = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
   },
   input: {
     padding: 4,
