@@ -25,7 +25,6 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [],
-      sent: [],
     };
   },
   componentWillMount: function(){
@@ -79,10 +78,8 @@ module.exports = React.createClass({
             chat = chat.concat([record[key]])
           }
         }
-
         this.setState({
           chat: chat,
-          sent: [],
         });
       }
     });
@@ -117,13 +114,9 @@ module.exports = React.createClass({
                      user: {id: this.state.username, name: this.state.username}};
     console.log(serverMsg);
     this.props.firebase.database().ref(path).push(serverMsg)
-    .then((response) => {
-      this.setState({
-        message: ''
-      })
-    })
+    .then((response) => {})
     .catch((err) => {
-      console.log(err);
+        console.log(err);
     });
   },
   onPressSend: function(messages = []) {
