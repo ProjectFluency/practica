@@ -2,7 +2,6 @@ const React = require('react');
 const ReactNative = require('react-native');
 const moment = require('moment');
 import { GiftedChat } from 'react-native-gifted-chat';
-import Emoji from 'react-native-emoji';
 
 const {
   View,
@@ -46,7 +45,7 @@ module.exports = React.createClass({
   renderReactions: function() {
       var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
       var emoji_views = emojis.map(function(es) {
-          return <Emoji style={styles.emoji} name={es} key={es} />
+          return <Button emoji={es} key={es} onPress={()=>{console.log(es);}}/>
       });
       return (<View style={styles.emojirxns}>
               {emoji_views}

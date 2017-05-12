@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactNative = require('react-native');
+import Emoji from 'react-native-emoji';
 
 const {
   Text,
@@ -9,13 +10,19 @@ const {
 
 module.exports = React.createClass({
   render: function() {
+    var innerView = null;
+    if (this.props.text) {
+        innerView = <Text style={[styles.buttonText]}> {this.props.text} </Text>;
+    } else if (this.props.emoji) {
+        innerView = <Text><Emoji style={[styles.buttonText]} name={this.props.emoji} /></Text>;
+    }
     return (
       <TouchableHighlight
         style={[styles.button]}
         underlayColor={'gray'}
         onPress={this.props.onPress}
       >
-        <Text style={[styles.buttonText]}>{this.props.text}</Text>
+        {innerView}
       </TouchableHighlight>
     );
   }
