@@ -44,8 +44,11 @@ module.exports = React.createClass({
   },
   renderReactions: function() {
       var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
+      var that = this;
       var emoji_views = emojis.map(function(es) {
-          return <Button emoji={es} key={es} onPress={()=>{console.log(es);}}/>
+          var etxt = ":" + es + ":";
+          return <Button emoji={es} key={es}
+                  onPress={() => that.processMessage({text: etxt, type: "emoji"})} />
       });
       return (<View style={styles.emojirxns}>
               {emoji_views}
@@ -104,13 +107,18 @@ module.exports = React.createClass({
                        renderFooter={this.renderReactions}
                        onSend={this.onPressSend} />);
   },
+  createMessage: function(username, text, type="text") {
+      return {message: {content: text,
+                        content_type: type},
+                     created_at: moment().utc().format(DATE_FMT),
+                     user: {id: username, name: username}};
+  },
   processMessage: function(messageObj){
     const path = "/messages/public_chat";
+    var serverMsg = this.createMessage(this.state.username,
+                                       messageObj.text,
+                                       messageObj.type || "text");
     console.log(messageObj);
-    var serverMsg = {message: {content: messageObj.text,
-                               content_type: "text"},
-                     created_at: moment().utc().format(DATE_FMT),
-                     user: {id: this.state.username, name: this.state.username}};
     console.log(serverMsg);
     this.props.firebase.database().ref(path).push(serverMsg)
     .then((response) => {})
