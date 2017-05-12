@@ -2,6 +2,7 @@ const React = require('react');
 const ReactNative = require('react-native');
 const moment = require('moment');
 import { GiftedChat } from 'react-native-gifted-chat';
+import Emoji from 'react-native-emoji';
 
 const {
   View,
@@ -42,6 +43,15 @@ module.exports = React.createClass({
       }
     });
 
+  },
+  renderReactions: function() {
+      var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
+      var emoji_views = emojis.map(function(es) {
+          return <Emoji style={styles.emoji} name={es} key={es} />
+      });
+      return (<View style={styles.emojirxns}>
+              {emoji_views}
+              </View>);
   },
   render: function() {
     if (!this.state.username || this.state.chat.length === 0) {
@@ -91,11 +101,11 @@ module.exports = React.createClass({
         };
     };
     var messages = this.state.chat.map(massageMessage);
-    console.log(this.state.sent);
     messages.reverse();
     return(<GiftedChat messages={messages}
                        user={{ _id: idFromName(this.state.username),
                                name: this.state.username}}
+                       renderFooter={this.renderReactions}
                        onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){
@@ -146,5 +156,13 @@ const styles = StyleSheet.create({
   },
   label:{
     fontSize: 18
-  }
+  },
+  emojirxns: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  emoji: {
+    fontSize: 20,
+  },
 });
