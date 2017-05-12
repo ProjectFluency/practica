@@ -2,6 +2,7 @@ const React = require('react');
 const ReactNative = require('react-native');
 const moment = require('moment');
 import { GiftedChat } from 'react-native-gifted-chat';
+import Emoji from 'react-native-emoji';
 
 const {
   View,
@@ -10,13 +11,13 @@ const {
   TextInput,
   AsyncStorage
 } = ReactNative;
-
+const {
+  idFromName,
+  serverToClientFormat,
+  clientToServerFormat,
+  DATE_FMT,
+} = require('./messages.js');
 const Button = require('../common/button');
-const DATE_FMT = 'MMM D YYYY HH:mm:ss';
-
-function idFromName(fullname) {
-    return fullname.split(" ")[0].toLowerCase();
-}
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -24,7 +25,6 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [],
-      sent: [],
     };
   },
   componentWillMount: function(){
@@ -41,7 +41,24 @@ module.exports = React.createClass({
         this.firebaseListen();
       }
     });
-
+  },
+  renderEmoji: function(props) {
+      var msg = props.currentMessage;
+      if (msg.type === "emoji") {
+          return(<Emoji name={msg.emoji} />);
+      }
+  },
+  renderReactions: function() {
+      var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
+      var that = this;
+      var emoji_views = emojis.map(function(es) {
+          var etxt = ":" + es + ":";
+          return <Button emoji={es} key={es}
+                  onPress={() => that.processMessage({emoji: etxt, type: "emoji"})} />
+      });
+      return (<View style={styles.emojiBar}>
+              {emoji_views}
+              </View>);
   },
   render: function() {
     if (!this.state.username || this.state.chat.length === 0) {
@@ -69,51 +86,30 @@ module.exports = React.createClass({
             chat = chat.concat([record[key]])
           }
         }
-
         this.setState({
           chat: chat,
-          sent: [],
         });
       }
     });
   },
   chatHistory: function() {
-    var massageMessage = (content, index) => {
-        var localized = moment.utc(content.created_at, DATE_FMT)
-                        .local().format(DATE_FMT);
-        return {_id: index,
-            text: content.message.content,
-            createdAt: new Date(localized),
-            user: {
-                _id: idFromName(content.user.name),
-                name: content.user.name,
-            },
-        };
-    };
-    var messages = this.state.chat.map(massageMessage);
-    console.log(this.state.sent);
+    var messages = this.state.chat.map(serverToClientFormat);
     messages.reverse();
     return(<GiftedChat messages={messages}
                        user={{ _id: idFromName(this.state.username),
                                name: this.state.username}}
+                       renderFooter={this.renderReactions}
+                       renderCustomView={this.renderEmoji}
                        onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){
     const path = "/messages/public_chat";
-    console.log(messageObj);
-    var serverMsg = {message: {content: messageObj.text,
-                               content_type: "text"},
-                     created_at: moment().utc().format(DATE_FMT),
-                     user: {id: this.state.username, name: this.state.username}};
-    console.log(serverMsg);
+    var serverMsg = clientToServerFormat(messageObj, this.state.username);
+    console.log({clientMsg: messageObj, serverMsg: serverMsg});
     this.props.firebase.database().ref(path).push(serverMsg)
-    .then((response) => {
-      this.setState({
-        message: ''
-      })
-    })
+    .then((response) => {})
     .catch((err) => {
-      console.log(err);
+        console.log(err);
     });
   },
   onPressSend: function(messages = []) {
@@ -146,5 +142,10 @@ const styles = StyleSheet.create({
   },
   label:{
     fontSize: 18
-  }
+  },
+  emojiBar: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
 });
