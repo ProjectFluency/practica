@@ -83,7 +83,7 @@ module.exports = React.createClass({
 
         for (var key in record) {
           if (record.hasOwnProperty(key)) {
-            chat = chat.concat([record[key]])
+            chat = [record[key]].concat(chat);
           }
         }
         this.setState({
@@ -94,7 +94,6 @@ module.exports = React.createClass({
   },
   chatHistory: function() {
     var messages = this.state.chat.map(serverToClientFormat);
-    messages.reverse();
     return(<GiftedChat messages={messages}
                        user={{ _id: idFromName(this.state.username),
                                name: this.state.username}}
