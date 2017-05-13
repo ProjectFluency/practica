@@ -31,7 +31,7 @@ module.exports = React.createClass({
     AsyncStorage.getItem('@guff:username', (err, username) => {
       if(err || !username) {
         this.props.navigator.immediatelyResetRouteStack([
-          {name: 'signin'}
+            {name: 'signin'}
         ]);
       } else {
         this.setState({
@@ -43,35 +43,31 @@ module.exports = React.createClass({
     });
   },
   renderEmoji: function(props) {
-      var msg = props.currentMessage;
-      if (msg.type === "emoji") {
-          return(<Emoji name={msg.emoji} />);
-      }
+    var msg = props.currentMessage;
+    if (msg.type === "emoji") {
+      return(<Emoji name={msg.emoji} />);
+    }
   },
   renderReactions: function() {
-      var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
-      var that = this;
-      var emoji_views = emojis.map(function(es) {
-          var etxt = ":" + es + ":";
-          return <Button emoji={es} key={es}
-                  onPress={() => that.processMessage({emoji: etxt, type: "emoji"})} />
-      });
-      return (<View style={styles.emojiBar}>
-              {emoji_views}
-              </View>);
+    var emojis = ["smile", "sweat_smile", "confused", "grin", "+1"];
+    var that = this;
+    var emoji_views = emojis.map(function(es) {
+      var etxt = ":" + es + ":";
+      return <Button emoji={es} key={es}
+      onPress={() => that.processMessage({emoji: etxt, type: "emoji"})} />
+    });
+    return (<View style={styles.emojiBar}>
+        {emoji_views}
+        </View>);
   },
   render: function() {
+    var innerView = null;
     if (!this.state.username || this.state.chat.length === 0) {
-      return (
-        <View style={[styles.container]}>
-        <Text>Loading...</Text>
-        </View>
-      );
+      innerView = <Text>Loading...</Text>;
     } else {
-      return (<View style={styles.container}>
-                {this.chatHistory()}
-              </View>);
+      innerView = this.chatHistory();
     }
+    return (<View style={styles.container}> {innerView} </View>);
   },
   firebaseListen: function() {
     this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
@@ -95,21 +91,21 @@ module.exports = React.createClass({
   chatHistory: function() {
     var messages = this.state.chat.map(serverToClientFormat);
     return(<GiftedChat messages={messages}
-                       user={{ _id: idFromName(this.state.username),
-                               name: this.state.username}}
-                       renderFooter={this.renderReactions}
-                       renderCustomView={this.renderEmoji}
-                       onSend={this.onPressSend} />);
+        user={{ _id: idFromName(this.state.username),
+          name: this.state.username}}
+          renderFooter={this.renderReactions}
+          renderCustomView={this.renderEmoji}
+          onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){
     const path = "/messages/public_chat";
     var serverMsg = clientToServerFormat(messageObj, this.state.username);
     console.log({clientMsg: messageObj, serverMsg: serverMsg});
     this.props.firebase.database().ref(path).push(serverMsg)
-    .then((response) => {})
-    .catch((err) => {
+      .then((response) => {})
+      .catch((err) => {
         console.log(err);
-    });
+      });
   },
   onPressSend: function(messages = []) {
     messages.map(this.processMessage);
@@ -120,7 +116,7 @@ module.exports = React.createClass({
     this.props.firebase.auth().signOut();
 
     this.props.navigator.immediatelyResetRouteStack([
-      {name: 'signin'}
+        {name: 'signin'}
     ]);
   }
 });
