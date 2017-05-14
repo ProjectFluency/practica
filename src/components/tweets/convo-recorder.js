@@ -12,46 +12,52 @@ const {
   View,
 } = ReactNative;
 
-Bubble = React.createClass({
+
+StaticBubble = React.createClass({
+  render: function() {
+    var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
+                       styles.bubbleRight : styles.bubbleLeft;
+    return(
+      <View style={[styles.colLayout, bubbleStyle]}>
+        <Text> {this.props.sayer} said: </Text>
+        <Text> {this.props.text} </Text>
+      </View>
+    );
+  }
+})
+
+const PLACEHOLDER = 'Tap here to start typing.';
+InputBubble = React.createClass({
   getInitialState: function() {
     return {
       textInputFrozen: false,
-      text: 'Tap here to start typing.'
+      text: PLACEHOLDER,
     };
   },
-  freezeText: function() {
-    this.setState({
-      textInputFrozen: true,
-    });
+  submit: function() {
+    this.setState(this.getInitialState());
+    if (this.state.text !== "" && this.state.text !== PLACEHOLDER)
+      this.props.onSubmit({text: this.state.text, sayer: this.props.sayer});
   },
   render: function() {
-    console.log(this.props.who);
-    var bubbleStyle = (this.props.who==="Me" || this.props.who==="You") ?
+    var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
                       styles.bubbleRight : styles.bubbleLeft;
-    if (this.state.textInputFrozen) {
-      return(
+    var then = (this.props.isInitial) ? "" : "Then";
+    return(
         <View style={[styles.colLayout, bubbleStyle]}>
-          <Text> {this.props.who} said: </Text>
-          <Text> {this.state.text} </Text>
-        </View>
-      );
-    } else if (this.props.who === "none") {
-       return(<View />);
-    } else {
-      return(
-        <View style={[styles.colLayout, bubbleStyle]}>
-          <Text> {this.props.who} said: </Text>
+          <Text> {then} {this.props.sayer} said, </Text>
           <View style={[styles.dashedBox]}>
             <TextInput
               style={{minHeight: 30}}
               returnKeyType={"next"}
               onFocus={() => this.setState({text: ''})}
               onChangeText={(text) => this.setState({text: text})}
+              onBlur={this.submit}
+              onSubmitEditing={this.submit}
               value={this.state.text} />
           </View>
-        </View>
-      );
-    }
+          </View>
+        );
   },
 })
 
@@ -60,20 +66,36 @@ Bubble = React.createClass({
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      currentTalker: 'none',
+      convo: []
     }
   },
-  setTalker: function(who) {
-    this.setState({currentTalker: who})
+  addToConvo: function(turn) {
+    this.setState({convo: this.state.convo.concat([turn])});
   },
   render: function() {
-    //animationType={"slide"}
+    // Existing conversations
+    var convo = this.state.convo;
+    var existingConvo = convo.map(
+      function(turn, index) {
+        return (<StaticBubble style={styles.bubble} key={index}
+                              text={turn.text} sayer={turn.sayer} />);
+      });
+    // Any conversation so far?
+    var convoStarted = (convo.length > 0);
+    // Order of You said, They said
+    var sayers = ["You", "They"];
+    if (convoStarted && convo[convo.length - 1].sayer === "You") {
+      sayers = sayers.reverse();
+    };
     return(
       <ScrollView style={styles.container}>
          <View style={styles.colLayout}>
             <Button style={styles.close} onPress={this.props.onClose} title = "×" />
-            <Bubble style={styles.bubble} who={"You"} />
-            <Bubble style={styles.bubble} who={"They"} />
+            {existingConvo}
+            <InputBubble style={styles.bubble}  onSubmit={this.addToConvo}
+                         sayer={sayers[0]} isInitial={!convoStarted}/>
+            <InputBubble style={styles.bubble} onSubmit={this.addToConvo}
+                         sayer={sayers[1]} />
          </View>
       </ScrollView>
     );
