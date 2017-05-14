@@ -17,8 +17,11 @@ const {
   clientToServerFormat,
   DATE_FMT,
 } = require('./messages.js');
+const {
+  ConversationRecorder,
+  ConversationDisplay
+} = require('./convo-recorder.js');
 const Button = require('../common/button');
-const ConvoRecorder = require('./convo-recorder.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -44,10 +47,13 @@ module.exports = React.createClass({
       }
     });
   },
-  renderEmoji: function(props) {
+  renderCustom: function(props) {
     var msg = props.currentMessage;
     if (msg.type === "emoji") {
       return(<Emoji name={msg.emoji} />);
+    } else if (msg.type === "transcript") {
+      //return(<ConversationDisplay transcript={msg.transcript} />);
+      return(<View />);
     }
   },
   renderReactions: function() {
@@ -69,7 +75,10 @@ module.exports = React.createClass({
   },
   render: function() {
     var that = this;
-    var cancel = function() {that.setState({showConvoRecorder: false})};
+    var close = function() {that.setState({showConvoRecorder: false})};
+    var submit = function(transcript) {
+      that.processMessage({type: "transcript", transcript: transcript});
+    };
     if (!this.state.username || this.state.chat.length === 0) {
       return(
         <View style={styles.container}>
@@ -79,7 +88,7 @@ module.exports = React.createClass({
     } else if (this.state.showConvoRecorder) {
       return(
         <View style={styles.container}>
-          <ConvoRecorder onSend={this.processMessage} onClose={cancel} />
+          <ConversationRecorder close={close} submitTranscript={submit} />
         </View>
       );
     } else {
@@ -118,7 +127,7 @@ module.exports = React.createClass({
             _id: idFromName(this.state.username),
             name: this.state.username}}
           renderFooter={this.renderReactions}
-          renderCustomView={this.renderEmoji}
+          renderCustomView={this.renderCustom}
           onSend={this.onPressSend} />);
   },
   processMessage: function(messageObj){

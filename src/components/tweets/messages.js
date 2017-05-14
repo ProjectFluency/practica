@@ -9,7 +9,7 @@ function idFromName(fullname) {
 function clientToServerFormat(message, username) {
   return {
     message: {
-      content: message.text || message.emoji,
+      content: message.text || message.emoji || message.transcript,
       content_type: message.type || "text"},
       created_at: moment().utc().format(DATE_FMT),
       user: {
@@ -23,23 +23,22 @@ function serverToClientFormat(content, index) {
       .local().format(DATE_FMT));
   var type = content.message.content_type;
   var user = {_id: idFromName(content.user.name), name: content.user.name};
+  var message = {
+    _id: index,
+    type: type,
+    createdAt: localized,
+    user: user
+  };
   if (type === "emoji") {
-    return {
-      _id: index,
-      type: type,
-      emoji: content.message.content,
-      createdAt: localized,
-      user: user,
-    }
+    message['emoji'] = content.message.content;
+  } else if (type === "transcript") {
+    message['transcript'] = content.message.content;
+  } else if (type === "text") {
+    message['text'] = content.message.content;
   } else {
-    return {
-      _id: index,
-      type: type,
-      text: content.message.content,
-      createdAt: localized,
-      user: user,
-    };
+    alert('Message type not recognized.');
   }
+  return message;
 }
 
 module.exports = {

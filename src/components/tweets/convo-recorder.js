@@ -55,21 +55,40 @@ InputBubble = React.createClass({
               ref="t"
               style={{minHeight: 30}}
               returnKeyType={"next"}
-              onFocus={() => this.setState({text: ''})}
+              onFocus={() => this.setState({text: ""})}
               onChangeText={(text) => this.setState({text: text})}
               onBlur={this.submit}
               onSubmitEditing={this.submit}
               autoFocus={this.props.isFirst}
               value={this.state.text} />
           </View>
-          </View>
-        );
+        </View>
+    );
   },
 })
 
+ConversationDisplay = React.createClass({
+  render: function() {
+    var transcript = this.props.transcript;
+    console.log(transcript);
+    var turnToBubble = function(turn, index) {
+      console.log(turn, index);
+      return (<StaticBubble
+                style={styles.bubble}
+                key={index}
+                index={index}
+                text={turn.text}
+                sayer={turn.sayer}> </StaticBubble>);
+    };
+    if (transcript.length) {
+      return (<View> {transcript.map(turnToBubble)} </View>);
+    } else {
+      return (<View/>);
+    }
+  },
+});
 
-//ConversationRecorder
-module.exports = React.createClass({
+ConversationRecorder = React.createClass({
   getInitialState: function() {
     return {
       convo: []
@@ -98,13 +117,18 @@ module.exports = React.createClass({
                            style={styles.bubble}  onSubmit={that.addToConvo}
                            sayer={sayer} convoStarted={convoStarted}/>);
     };
+    var submit = () => { this.props.submitTranscript(this.state.convo); };
+    var btn = (convoStarted) ?
+      <Button style={styles.button} title={"Submit"} onPress={submit}  /> :
+      <Button style={styles.button} title={"Cancel"} onPress={this.props.close} />;
     return(
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container}
+                  keyboardShouldPersistTaps={"handled"}>
          <View style={styles.colLayout}>
-            <Button style={styles.close} onPress={this.props.onClose} title = "×" />
-            {existingConvo}
+            <ConversationDisplay transcript={convo} />
             {sayers.map(InputForSayer)}
          </View>
+         {btn}
       </ScrollView>
     );
   }
@@ -130,10 +154,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-  },
-  close: {
-    width: 10,
-    alignSelf: 'flex-end',
   },
   container: {
     flex: 1,
@@ -171,4 +191,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
+
+module.exports = {
+  ConversationRecorder: ConversationRecorder,
+  ConversationDisplay: ConversationDisplay
+};
 
