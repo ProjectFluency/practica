@@ -74,7 +74,7 @@ module.exports = React.createClass({
     }
   },
   firebaseListen: function() {
-    this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
+    this.props.firebase.database().ref("/messages/GR_1").on('value', (snapshot) => {
 
       if (snapshot.val()) {
         console.log(snapshot.val());
