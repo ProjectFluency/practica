@@ -26,7 +26,7 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [],
-      showConvoRecorder: true,
+      showConvoRecorder: false,
     };
   },
   componentWillMount: function(){

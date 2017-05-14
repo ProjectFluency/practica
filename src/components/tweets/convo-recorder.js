@@ -17,9 +17,10 @@ StaticBubble = React.createClass({
   render: function() {
     var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
                        styles.bubbleRight : styles.bubbleLeft;
+    var then = (this.props.index) ? "Then" : "";
     return(
       <View style={[styles.colLayout, bubbleStyle]}>
-        <Text> {this.props.sayer} said: </Text>
+        <Text> {then} {this.props.sayer} said, </Text>
         <Text> {this.props.text} </Text>
       </View>
     );
@@ -30,30 +31,35 @@ const PLACEHOLDER = 'Tap here to start typing.';
 InputBubble = React.createClass({
   getInitialState: function() {
     return {
-      textInputFrozen: false,
       text: PLACEHOLDER,
     };
   },
   submit: function() {
-    this.setState(this.getInitialState());
+    this.setState({text: PLACEHOLDER});
     if (this.state.text !== "" && this.state.text !== PLACEHOLDER)
       this.props.onSubmit({text: this.state.text, sayer: this.props.sayer});
+  },
+  componentDidUpdate() {
+    if (this.props.isFirst && this.props.convoStarted)
+      this.refs["t"].focus();
   },
   render: function() {
     var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
                       styles.bubbleRight : styles.bubbleLeft;
-    var then = (this.props.isInitial) ? "" : "Then";
+    var then = (this.props.convoStarted) ? "Then" : "";
     return(
         <View style={[styles.colLayout, bubbleStyle]}>
           <Text> {then} {this.props.sayer} said, </Text>
           <View style={[styles.dashedBox]}>
             <TextInput
+              ref="t"
               style={{minHeight: 30}}
               returnKeyType={"next"}
               onFocus={() => this.setState({text: ''})}
               onChangeText={(text) => this.setState({text: text})}
               onBlur={this.submit}
               onSubmitEditing={this.submit}
+              autoFocus={this.props.isFirst}
               value={this.state.text} />
           </View>
           </View>
@@ -77,25 +83,27 @@ module.exports = React.createClass({
     var convo = this.state.convo;
     var existingConvo = convo.map(
       function(turn, index) {
-        return (<StaticBubble style={styles.bubble} key={index}
+        return (<StaticBubble style={styles.bubble} key={index} index={index}
                               text={turn.text} sayer={turn.sayer} />);
       });
     // Any conversation so far?
     var convoStarted = (convo.length > 0);
     // Order of You said, They said
-    var sayers = ["You", "They"];
-    if (convoStarted && convo[convo.length - 1].sayer === "You") {
-      sayers = sayers.reverse();
+    var sayerFlip = {"You": "They", "They": "You"};
+    var sayers = (convoStarted) ? [sayerFlip[convo[convo.length - 1].sayer]] : ["You", "They"];
+    // InputBubble, given sayer
+    var that = this;
+    var InputForSayer = function(sayer, index) {
+      return (<InputBubble isFirst={index===0} key={index}
+                           style={styles.bubble}  onSubmit={that.addToConvo}
+                           sayer={sayer} convoStarted={convoStarted}/>);
     };
     return(
       <ScrollView style={styles.container}>
          <View style={styles.colLayout}>
             <Button style={styles.close} onPress={this.props.onClose} title = "×" />
             {existingConvo}
-            <InputBubble style={styles.bubble}  onSubmit={this.addToConvo}
-                         sayer={sayers[0]} isInitial={!convoStarted}/>
-            <InputBubble style={styles.bubble} onSubmit={this.addToConvo}
-                         sayer={sayers[1]} />
+            {sayers.map(InputForSayer)}
          </View>
       </ScrollView>
     );
