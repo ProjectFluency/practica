@@ -18,6 +18,7 @@ const {
   DATE_FMT,
 } = require('./messages.js');
 const Button = require('../common/button');
+const ConvoRecorder = require('./convo-recorder.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -25,6 +26,7 @@ module.exports = React.createClass({
       username: null,
       message: '',
       chat: [],
+      showConvoRecorder: true,
     };
   },
   componentWillMount: function(){
@@ -53,21 +55,40 @@ module.exports = React.createClass({
     var that = this;
     var emoji_views = emojis.map(function(es) {
       var etxt = ":" + es + ":";
-      return <Button emoji={es} key={es}
-      onPress={() => that.processMessage({emoji: etxt, type: "emoji"})} />
+      return (
+          <Button emoji={es} key={es}
+                  onPress={() => that.processMessage({emoji: etxt, type: "emoji"})} />
+      );
     });
-    return (<View style={styles.emojiBar}>
-        {emoji_views}
+    return (
+        <View style={styles.emojiBar}>
+          {emoji_views}
+          <Button emoji="speech_balloon"
+                  onPress={() => that.setState({showConvoRecorder: true})}/>
         </View>);
   },
   render: function() {
-    var innerView = null;
+    var that = this;
+    var cancel = function() {that.setState({showConvoRecorder: false})};
     if (!this.state.username || this.state.chat.length === 0) {
-      innerView = <Text>Loading...</Text>;
+      return(
+        <View style={styles.container}>
+          <Text>Loading...</Text>
+        </View>
+      );
+    } else if (this.state.showConvoRecorder) {
+      return(
+        <View style={styles.container}>
+          <ConvoRecorder onSend={this.processMessage} onClose={cancel} />
+        </View>
+      );
     } else {
-      innerView = this.chatHistory();
+      return(
+        <View style={styles.container}>
+          {this.chatHistory()}
+        </View>
+      );
     }
-    return (<View style={styles.container}> {innerView} </View>);
   },
   firebaseListen: function() {
     this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
@@ -90,9 +111,12 @@ module.exports = React.createClass({
   },
   chatHistory: function() {
     var messages = this.state.chat.map(serverToClientFormat);
-    return(<GiftedChat messages={messages}
-        user={{ _id: idFromName(this.state.username),
-          name: this.state.username}}
+    return(
+        <GiftedChat
+          messages={messages}
+          user={{
+            _id: idFromName(this.state.username),
+            name: this.state.username}}
           renderFooter={this.renderReactions}
           renderCustomView={this.renderEmoji}
           onSend={this.onPressSend} />);
