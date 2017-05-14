@@ -16,7 +16,7 @@ Bubble = React.createClass({
   getInitialState: function() {
     return {
       textInputFrozen: false,
-      text: 'Click here to start typing.'
+      text: 'Tap here to start typing.'
     };
   },
   freezeText: function() {
@@ -41,14 +41,13 @@ Bubble = React.createClass({
       return(
         <View style={[styles.colLayout, bubbleStyle]}>
           <Text> {this.props.who} said: </Text>
-          <View style={[styles.rowLayout, ]}>
+          <View style={[styles.dashedBox]}>
             <TextInput
-              style={{minHeight: 20, width: '80%', borderBottomColor: 'grey', borderBottomWidth: 1}}
-              multiline={true}
+              style={{minHeight: 30}}
+              returnKeyType={"next"}
               onFocus={() => this.setState({text: ''})}
               onChangeText={(text) => this.setState({text: text})}
               value={this.state.text} />
-            <Button title="Done" onPress={this.freezeText}/>
           </View>
         </View>
       );
@@ -85,6 +84,14 @@ const styles = StyleSheet.create({
   rowLayout: {
     flex: 1,
     flexDirection: 'row',
+  },
+  dashedBox: {
+    margin: 10,
+    borderStyle: 'dashed',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'grey',
+    minHeight: 40,
   },
   wide: {
     width: 500,
