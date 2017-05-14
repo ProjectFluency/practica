@@ -28,7 +28,7 @@ module.exports = React.createClass({
     };
   },
   componentWillMount: function(){
-    AsyncStorage.getItem('@guff:username', (err, username) => {
+    AsyncStorage.getItem('@practica:username', (err, username) => {
       if(err || !username) {
         this.props.navigator.immediatelyResetRouteStack([
           {name: 'signin'}
@@ -116,7 +116,7 @@ module.exports = React.createClass({
     messages.map(this.processMessage);
   },
   onPressLogOut: function() {
-    AsyncStorage.removeItem('@guff:username');
+    AsyncStorage.removeItem('@practica:username');
 
     this.props.firebase.auth().signOut();
 

@@ -6,4 +6,4 @@ const {
 
 const Main = require('./src/main');
 
-AppRegistry.registerComponent('guff', () => Main)
+AppRegistry.registerComponent('practica', () => Main)

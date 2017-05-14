@@ -24,7 +24,7 @@ module.exports = React.createClass({
     }
   },
   componentWillMount: function(){
-    AsyncStorage.removeItem('@guff:username');
+    AsyncStorage.removeItem('@practica:username');
   },
   render: function() {
     return (
@@ -71,7 +71,7 @@ module.exports = React.createClass({
           username: ''
         });
 
-        AsyncStorage.setItem('@guff:username', response.email);
+        AsyncStorage.setItem('@practica:username', response.email);
 
         this.props.navigator.immediatelyResetRouteStack([
           {name: 'tweets'}
