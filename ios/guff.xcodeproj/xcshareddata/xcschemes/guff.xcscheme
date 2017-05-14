@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "practica.app"
-               BlueprintName = "practica"
-               ReferencedContainer = "container:practica.xcodeproj">
+               BuildableName = "guff.app"
+               BlueprintName = "guff"
+               ReferencedContainer = "container:guff.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "practicaTests.xctest"
-               BlueprintName = "practicaTests"
-               ReferencedContainer = "container:practica.xcodeproj">
+               BuildableName = "guffTests.xctest"
+               BlueprintName = "guffTests"
+               ReferencedContainer = "container:guff.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,9 +61,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "practicaTests.xctest"
-               BlueprintName = "practicaTests"
-               ReferencedContainer = "container:practica.xcodeproj">
+               BuildableName = "guffTests.xctest"
+               BlueprintName = "guffTests"
+               ReferencedContainer = "container:guff.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "practica.app"
-            BlueprintName = "practica"
-            ReferencedContainer = "container:practica.xcodeproj">
+            BuildableName = "guff.app"
+            BlueprintName = "guff"
+            ReferencedContainer = "container:guff.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -94,9 +94,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "practica.app"
-            BlueprintName = "practica"
-            ReferencedContainer = "container:practica.xcodeproj">
+            BuildableName = "guff.app"
+            BlueprintName = "guff"
+            ReferencedContainer = "container:guff.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -113,9 +113,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "practica.app"
-            BlueprintName = "practica"
-            ReferencedContainer = "container:practica.xcodeproj">
+            BuildableName = "guff.app"
+            BlueprintName = "guff"
+            ReferencedContainer = "container:guff.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

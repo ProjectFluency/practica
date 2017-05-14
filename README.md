@@ -9,5 +9,3 @@ Next install React Native CLI. Instructions can be found [here](https://www.npmj
 In order to build this, run the following
 `react-native run-ios` to build for an iOS device or alternatively, 
 `react-native run-android` to build for an Android device.
-
-
