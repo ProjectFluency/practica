@@ -110,7 +110,8 @@ module.exports = React.createClass({
 
         for (var key in record) {
           if (record.hasOwnProperty(key)) {
-            chat = [record[key]].concat(chat);
+            var message = record[key];
+            chat = [message].concat(chat);
           }
         }
         this.setState({

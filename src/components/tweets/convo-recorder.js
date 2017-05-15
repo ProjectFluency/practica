@@ -27,21 +27,24 @@ StaticBubble = React.createClass({
   }
 })
 
-const PLACEHOLDER = 'Tap here to start typing.';
+const PLACEHOLDER = '';
 InputBubble = React.createClass({
   getInitialState: function() {
     return {
-      text: PLACEHOLDER,
     };
   },
-  submit: function() {
-    this.setState({text: PLACEHOLDER});
-    if (this.state.text !== "" && this.state.text !== PLACEHOLDER)
-      this.props.onSubmit({text: this.state.text, sayer: this.props.sayer});
+  submit: function(event) {
+    this.refs["t"].clear();
+    var value = event.nativeEvent.text;
+    if (value !== "" && value !== PLACEHOLDER)
+      this.props.onSubmit({text: value, sayer: this.props.sayer});
   },
-  componentDidUpdate() {
-    if (this.props.isFirst && this.props.convoStarted)
-      this.refs["t"].focus();
+  componentDidUpdate: function() {
+    console.log("cDU");
+    if (this.props.isFirst && this.props.convoStarted) {
+       console.log("love");
+       this.refs["t"].focus();
+    }
   },
   render: function() {
     var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
@@ -55,12 +58,8 @@ InputBubble = React.createClass({
               ref="t"
               style={{minHeight: 30}}
               returnKeyType={"next"}
-              onFocus={() => this.setState({text: ""})}
-              onChangeText={(text) => this.setState({text: text})}
-              onBlur={this.submit}
               onSubmitEditing={this.submit}
-              autoFocus={this.props.isFirst}
-              value={this.state.text} />
+              autoFocus={this.props.isFirst} />
           </View>
         </View>
     );
@@ -70,7 +69,6 @@ InputBubble = React.createClass({
 ConversationDisplay = React.createClass({
   render: function() {
     var transcript = this.props.transcript;
-    console.log(transcript);
     var turnToBubble = function(turn, index) {
       console.log(turn, index);
       return (<StaticBubble
@@ -113,7 +111,7 @@ ConversationRecorder = React.createClass({
     // InputBubble, given sayer
     var that = this;
     var InputForSayer = function(sayer, index) {
-      return (<InputBubble isFirst={index===0} key={index}
+      return (<InputBubble isFirst={index===0} key={index} ref={index}
                            style={styles.bubble}  onSubmit={that.addToConvo}
                            sayer={sayer} convoStarted={convoStarted}/>);
     };
