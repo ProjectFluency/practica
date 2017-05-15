@@ -125,7 +125,7 @@ ConversationRecorder = React.createClass({
       <ScrollView style={styles.container}
                   keyboardShouldPersistTaps={"handled"}>
          <View style={styles.colLayout}>
-            <ConversationDisplay transcript={convo} />
+          {existingConvo}
             {sayers.map(InputForSayer)}
          </View>
          {btn}

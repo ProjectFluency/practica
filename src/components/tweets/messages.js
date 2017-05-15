@@ -32,7 +32,12 @@ function serverToClientFormat(content, index) {
   if (type === "emoji") {
     message['emoji'] = content.message.content;
   } else if (type === "transcript") {
-    message['transcript'] = content.message.content;
+    var transcript = content.message.content;
+    var str = transcript.map(function(turn, index) {
+        return (turn.sayer + " said: " + turn.text);
+    }).join("\n");
+    message['text'] = str;
+    //message['transcript'] = content.message.content;
   } else if (type === "text") {
     message['text'] = content.message.content;
   } else {

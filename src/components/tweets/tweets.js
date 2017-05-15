@@ -78,6 +78,7 @@ module.exports = React.createClass({
     var close = function() {that.setState({showConvoRecorder: false})};
     var submit = function(transcript) {
       that.processMessage({type: "transcript", transcript: transcript});
+      close();
     };
     if (!this.state.username || this.state.chat.length === 0) {
       return(
