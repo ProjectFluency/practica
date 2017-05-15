@@ -1,4 +1,4 @@
-package com.guff;
+package com.practica;
 
 import android.app.Application;
 
