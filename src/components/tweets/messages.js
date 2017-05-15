@@ -19,27 +19,33 @@ function clientToServerFormat(message, username) {
 // The content object comes straight from firebase
 // Return item follows GiftedChat / client formatting
 function serverToClientFormat(content, index) {
-    var localized = new Date(moment.utc(content.created_at, DATE_FMT)
-            .local().format(DATE_FMT));
-    var type = content.message.content_type;
-    var user = {_id: idFromName(content.user.name), name: content.user.name};
-    if (type === "emoji") {
-        return {
-            _id: index,
-            type: type,
-            emoji: content.message.content,
-            createdAt: localized,
-            user: user,
-        }
-    } else {
-        return {
-            _id: index,
-            type: type,
-            text: content.message.content,
-            createdAt: localized,
-            user: user,
-        };
+  var localized = new Date(
+    moment.utc(content.created_at, DATE_FMT).local().format(DATE_FMT)
+  )
+  var type = content.message.content_type
+  var user = { _id: idFromName(content.user.name), name: content.user.name }
+
+  const msgContent = content.message.content
+  const text =
+    Array.isArray(msgContent)
+      ? msgContent.reduce((a, x) =>  `${a}\n>${x.text}`, '')
+      : msgContent
+
+  if (type === "emoji") {
+    return {
+      _id: index,
+      type: type,
+      emoji: msgContent,
+      createdAt: localized,
+      user: user
     }
+  } else {
+    return {
+      type, text, user,
+      _id: index,
+      createdAt: localized,
+    }
+  }
 }
 
 module.exports = {

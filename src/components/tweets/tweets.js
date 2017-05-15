@@ -9,7 +9,8 @@ const {
   Text,
   StyleSheet,
   TextInput,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator,
 } = ReactNative;
 const {
   idFromName,
@@ -28,19 +29,23 @@ module.exports = React.createClass({
     };
   },
   componentWillMount: function(){
-    AsyncStorage.getItem('@guff:username', (err, username) => {
-      if(err || !username) {
-        this.props.navigator.immediatelyResetRouteStack([
-          {name: 'signin'}
-        ]);
-      } else {
-        this.setState({
-          username: username
-        });
+    try {
+      AsyncStorage.getItem('@guff:username', (err, username) => {
+        if(err || !username) {
+          this.props.navigator.immediatelyResetRouteStack([
+            {name: 'signin'}
+          ]);
+        } else {
+          this.setState({
+            username: username
+          });
 
-        this.firebaseListen();
-      }
-    });
+          this.firebaseListen();
+        }
+      });
+    } catch(e) {
+      console.log(e)
+    }
   },
   renderEmoji: function(props) {
       var msg = props.currentMessage;
@@ -63,8 +68,9 @@ module.exports = React.createClass({
   render: function() {
     if (!this.state.username || this.state.chat.length === 0) {
       return (
-        <View style={[styles.container]}>
-        <Text>Loading...</Text>
+        <View style={[styles.container, styles.center]}>
+          <ActivityIndicator />
+          <Text>Loading...</Text>
         </View>
       );
     } else {
@@ -74,23 +80,21 @@ module.exports = React.createClass({
     }
   },
   firebaseListen: function() {
-    this.props.firebase.database().ref("/messages/public_chat").on('value', (snapshot) => {
+    this.props.firebase.database().ref("/messages/public_chat")
+      .on('value', (snapshot) => {
+        if (snapshot.val()) {
+          console.log(snapshot.val());
+          const record = snapshot.val();
+          const chat = [];
 
-      if (snapshot.val()) {
-        console.log(snapshot.val());
-        const record = snapshot.val();
-        const chat = [];
-
-        for (var key in record) {
-          if (record.hasOwnProperty(key)) {
-            chat = chat.concat([record[key]])
+          for (var key in record) {
+            if (record.hasOwnProperty(key)) {
+              chat = chat.concat([record[key]])
+            }
           }
+          this.setState({ chat });
         }
-        this.setState({
-          chat: chat,
-        });
-      }
-    });
+      });
   },
   chatHistory: function() {
     var messages = this.state.chat.map(serverToClientFormat);
@@ -129,6 +133,10 @@ module.exports = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     padding: 4,
