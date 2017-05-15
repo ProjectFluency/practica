@@ -9,7 +9,8 @@ const {
   Text,
   StyleSheet,
   TextInput,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator
 } = ReactNative;
 const {
   idFromName,
@@ -33,19 +34,23 @@ module.exports = React.createClass({
     };
   },
   componentWillMount: function(){
-    AsyncStorage.getItem('@guff:username', (err, username) => {
-      if(err || !username) {
-        this.props.navigator.immediatelyResetRouteStack([
-            {name: 'signin'}
-        ]);
-      } else {
-        this.setState({
-          username: username
-        });
+    try {
+      AsyncStorage.getItem('@guff:username', (err, username) => {
+        if(err || !username) {
+          this.props.navigator.immediatelyResetRouteStack([
+              {name: 'signin'}
+          ]);
+        } else {
+          this.setState({
+            username: username
+          });
 
-        this.firebaseListen();
-      }
-    });
+          this.firebaseListen();
+        }
+      });
+    } catch(e) {
+      console.log(e);
+    }
   },
   renderCustom: function(props) {
     var msg = props.currentMessage;
@@ -82,7 +87,8 @@ module.exports = React.createClass({
     };
     if (!this.state.username || this.state.chat.length === 0) {
       return(
-        <View style={styles.container}>
+        <View style={[styles.container, styles.center]}>
+          <ActivityIndicator />
           <Text>Loading...</Text>
         </View>
       );
@@ -159,6 +165,10 @@ module.exports = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     padding: 4,
