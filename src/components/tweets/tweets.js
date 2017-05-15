@@ -52,7 +52,7 @@ module.exports = React.createClass({
     if (msg.type === "emoji") {
       return(<Emoji name={msg.emoji} />);
     } else if (msg.type === "transcript") {
-      //return(<ConversationDisplay transcript={msg.transcript} />);
+      //console.log(msg.transcript);
       return(<View />);
     }
   },

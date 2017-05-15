@@ -37,7 +37,7 @@ function serverToClientFormat(content, index) {
         return (turn.sayer + " said: " + turn.text);
     }).join("\n");
     message['text'] = str;
-    //message['transcript'] = content.message.content;
+    message['transcript'] = content.message.content;
   } else if (type === "text") {
     message['text'] = content.message.content;
   } else {

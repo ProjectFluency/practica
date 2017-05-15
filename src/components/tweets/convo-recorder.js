@@ -10,61 +10,10 @@ const {
   TextInput,
   TouchableHighlight,
   View,
+  findNodeHandle,
 } = ReactNative;
 
-
-StaticBubble = React.createClass({
-  render: function() {
-    var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
-                       styles.bubbleRight : styles.bubbleLeft;
-    var then = (this.props.index) ? "Then" : "";
-    return(
-      <View style={[styles.colLayout, bubbleStyle]}>
-        <Text> {then} {this.props.sayer} said, </Text>
-        <Text> {this.props.text} </Text>
-      </View>
-    );
-  }
-})
-
 const PLACEHOLDER = '';
-InputBubble = React.createClass({
-  getInitialState: function() {
-    return {
-    };
-  },
-  submit: function(event) {
-    this.refs["t"].clear();
-    var value = event.nativeEvent.text;
-    if (value !== "" && value !== PLACEHOLDER)
-      this.props.onSubmit({text: value, sayer: this.props.sayer});
-  },
-  componentDidUpdate: function() {
-    console.log("cDU");
-    if (this.props.isFirst && this.props.convoStarted) {
-       console.log("love");
-       this.refs["t"].focus();
-    }
-  },
-  render: function() {
-    var bubbleStyle = (this.props.sayer==="Me" || this.props.sayer==="You") ?
-                      styles.bubbleRight : styles.bubbleLeft;
-    var then = (this.props.convoStarted) ? "Then" : "";
-    return(
-        <View style={[styles.colLayout, bubbleStyle]}>
-          <Text> {then} {this.props.sayer} said, </Text>
-          <View style={[styles.dashedBox]}>
-            <TextInput
-              ref="t"
-              style={{minHeight: 30}}
-              returnKeyType={"next"}
-              onSubmitEditing={this.submit}
-              autoFocus={this.props.isFirst} />
-          </View>
-        </View>
-    );
-  },
-})
 
 ConversationDisplay = React.createClass({
   render: function() {
@@ -86,47 +35,90 @@ ConversationDisplay = React.createClass({
   },
 });
 
+Bubble = React.createClass({
+  submit: function(event) {
+    var value = event.nativeEvent.text;
+    if (value !== "" && value !== PLACEHOLDER)
+      this.props.onSubmit({text: value, sayer: this.props.sayer});
+  },
+  styleForSayer: function(sayer) {
+    return (sayer === "Me" || sayer === "You") ?
+      styles.bubbleRight : styles.bubbleLeft;
+  },
+  render: function() {
+    var bubbleStyle = this.styleForSayer(this.props.sayer);
+    var then = (this.props.convoStarted) ? "Then" : "";
+    if (this.props.text) {
+      return(
+        <View style={[styles.colLayout, bubbleStyle]}>
+          <Text> {then} {this.props.sayer} said, </Text>
+          <Text> {this.props.text} </Text>
+        </View>);
+    } else  {
+      return(
+        <View style={[styles.colLayout, bubbleStyle]}>
+          <Text> {then} {this.props.sayer} said, </Text>
+          <View style={[styles.dashedBox]}>
+            <TextInput
+              style={{minHeight: 30}}
+              returnKeyType={"next"}
+              onSubmitEditing={this.submit}
+              autoFocus={true} />
+          </View>
+        </View>);
+    }
+  }
+});
+
 ConversationRecorder = React.createClass({
   getInitialState: function() {
     return {
+      convoStarted: false,
+      nextSayer: "You",
       convo: []
     }
   },
-  addToConvo: function(turn) {
-    this.setState({convo: this.state.convo.concat([turn])});
-  },
-  render: function() {
-    // Existing conversations
-    var convo = this.state.convo;
-    var existingConvo = convo.map(
-      function(turn, index) {
-        return (<StaticBubble style={styles.bubble} key={index} index={index}
-                              text={turn.text} sayer={turn.sayer} />);
-      });
-    // Any conversation so far?
-    var convoStarted = (convo.length > 0);
-    // Order of You said, They said
+  theOtherSayer: function() {
     var sayerFlip = {"You": "They", "They": "You"};
-    var sayers = (convoStarted) ? [sayerFlip[convo[convo.length - 1].sayer]] : ["You", "They"];
-    // InputBubble, given sayer
-    var that = this;
-    var InputForSayer = function(sayer, index) {
-      return (<InputBubble isFirst={index===0} key={index} ref={index}
-                           style={styles.bubble}  onSubmit={that.addToConvo}
-                           sayer={sayer} convoStarted={convoStarted}/>);
-    };
+    return sayerFlip[this.state.nextSayer];
+  },
+  flipSayer: function() {
+    this.setState({nextSayer: this.theOtherSayer()});
+  },
+  addToConvo: function(turn) {
+    this.setState({convo: this.state.convo.concat([turn]),
+                   convoStarted: true,
+                   nextSayer: this.theOtherSayer()});
+  },
+  submitButton: function() {
     var submit = () => { this.props.submitTranscript(this.state.convo); };
-    var btn = (convoStarted) ?
+    return (this.state.convoStarted) ?
       <Button style={styles.button} title={"Submit"} onPress={submit}  /> :
       <Button style={styles.button} title={"Cancel"} onPress={this.props.close} />;
+  },
+  render: function() {
+    var that = this;
+    var turnToBubble =  function(turn, index) {
+      return (
+          <Bubble key={index}
+                  text={turn.text}
+                  sayer={turn.sayer}
+                  onSubmit={that.addToConvo}
+                  convoStarted={that.state.convoStarted}/>);
+    };
+    var flipper = (this.state.convoStarted) ? <View/> :
+      <Button style={styles.button}
+              title={this.theOtherSayer() + " started."}
+              onPress={this.flipSayer} />;
+    // Add the text-input
+    var convo = this.state.convo.concat([{text: "", sayer: this.state.nextSayer}]);
     return(
-      <ScrollView style={styles.container}
-                  keyboardShouldPersistTaps={"handled"}>
+      <ScrollView style={styles.container} keyboardShouldPersistTaps={"handled"}>
          <View style={styles.colLayout}>
-          {existingConvo}
-            {sayers.map(InputForSayer)}
+            {convo.map(turnToBubble)}
+            {flipper}
          </View>
-         {btn}
+         {this.submitButton()}
       </ScrollView>
     );
   }
