@@ -62,6 +62,7 @@ Bubble = React.createClass({
             <TextInput
               style={{minHeight: 30}}
               returnKeyType={"next"}
+              blurOnSubmit={false}
               onSubmitEditing={this.submit}
               autoFocus={true} />
           </View>
@@ -147,6 +148,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    marginTop: 20,
   },
   button: {
     justifyContent: 'center',
@@ -177,7 +179,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#80b4ff',
     alignSelf: 'flex-end',
     width: '80%',
-    margin: 20,
+    margin: 10,
     padding: 10,
   },
 });
