@@ -28,7 +28,7 @@ function serverToClientFormat(content, index) {
   const msgContent = content.message.content
   const text =
     Array.isArray(msgContent)
-      ? msgContent.reduce((a, x) =>  `${a}\n>${x.text}`, '')
+      ? msgContent.reduce((a, x) =>  `${a}\n${x.sayer} said: ${x.text}`, '')
       : msgContent
 
   if (type === "emoji") {
