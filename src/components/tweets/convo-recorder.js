@@ -19,7 +19,6 @@ ConversationDisplay = React.createClass({
   render: function() {
     var transcript = this.props.transcript;
     var turnToBubble = function(turn, index) {
-      console.log(turn, index);
       return (<StaticBubble
                 style={styles.bubble}
                 key={index}
@@ -36,10 +35,20 @@ ConversationDisplay = React.createClass({
 });
 
 Bubble = React.createClass({
+  value: function() {
+    return this._input._lastNativeText;
+  },
   submit: function(event) {
-    var value = event.nativeEvent.text;
+    var value = this.value();
     if (value !== "" && value !== PLACEHOLDER)
       this.props.onSubmit({text: value, sayer: this.props.sayer});
+  },
+  submitAndThen: function(after) {
+    var value = this.value();
+    if (value !== "" && value !== PLACEHOLDER)
+      this.props.onSubmit({text: value, sayer: this.props.sayer}, after);
+    else
+      after();
   },
   styleForSayer: function(sayer) {
     return (sayer === "Me" || sayer === "You") ?
@@ -60,6 +69,7 @@ Bubble = React.createClass({
           <Text> {then} {this.props.sayer} said, </Text>
           <View style={[styles.dashedBox]}>
             <TextInput
+              ref={(i) => { this._input = i}}
               style={{minHeight: 30}}
               returnKeyType={"next"}
               blurOnSubmit={false}
@@ -76,7 +86,7 @@ ConversationRecorder = React.createClass({
     return {
       convoStarted: false,
       nextSayer: "You",
-      convo: []
+      convo: [],
     }
   },
   theOtherSayer: function() {
@@ -86,40 +96,46 @@ ConversationRecorder = React.createClass({
   flipSayer: function() {
     this.setState({nextSayer: this.theOtherSayer()});
   },
-  addToConvo: function(turn) {
+  addToConvo: function(turn, afterSettingState) {
+    var cb = () => { if(afterSettingState) {afterSettingState();} };
     this.setState({convo: this.state.convo.concat([turn]),
                    convoStarted: true,
-                   nextSayer: this.theOtherSayer()});
+                   nextSayer: this.theOtherSayer()},
+                   cb);
   },
-  submitButton: function() {
-    var submit = () => { this.props.submitTranscript(this.state.convo); };
+  actionButton: function() {
+    var submit = () => {
+      // Submit text if there is any in the text input
+      this.refs[this.state.convo.length].submitAndThen(() => {
+        this.props.submitTranscript(this.state.convo);
+      });
+    };
     return (this.state.convoStarted) ?
       <Button style={styles.button} title={"Submit"} onPress={submit}  /> :
-      <Button style={styles.button} title={"Cancel"} onPress={this.props.close} />;
+      <Button style={styles.button} title={this.theOtherSayer() + " started"} onPress={this.flipSayer} />;
   },
   render: function() {
     var that = this;
     var turnToBubble =  function(turn, index) {
       return (
           <Bubble key={index}
+                  ref={index}
                   text={turn.text}
                   sayer={turn.sayer}
                   onSubmit={that.addToConvo}
                   convoStarted={that.state.convoStarted}/>);
     };
-    var flipper = (this.state.convoStarted) ? <View/> :
-      <Button style={styles.button}
-              title={this.theOtherSayer() + " started."}
-              onPress={this.flipSayer} />;
-    // Add the text-input
     var convo = this.state.convo.concat([{text: "", sayer: this.state.nextSayer}]);
     return(
       <ScrollView style={styles.container} keyboardShouldPersistTaps={"handled"}>
          <View style={styles.colLayout}>
             {convo.map(turnToBubble)}
-            {flipper}
          </View>
-         {this.submitButton()}
+         <View style={[styles.rowLayout, {alignSelf: 'center'}]}>
+           {this.actionButton()}
+           <Text style={styles.buttonSeparator}> | </Text>
+           <Button style={styles.button} title={"Cancel"} onPress={this.props.close} />
+         </View>
       </ScrollView>
     );
   }
@@ -153,11 +169,23 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    fontSize: 14,
+  },
+  translucent: {
+    opacity: 0.8,
+  },
+  secondary: {
+    color: '#787878',
   },
   buttonText: {
     alignSelf: 'center',
     fontSize: 20
+  },
+  buttonSeparator: {
+    fontSize: 18,
+    color: 'grey',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
   bubble: {
     width: '90%',
