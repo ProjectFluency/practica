@@ -1,10 +1,5 @@
-const React = require('react');
-const ReactNative = require('react-native');
-
-const {
-  StyleSheet,
-  Navigator
-} = ReactNative;
+import React, { Component } from 'react';
+import { StyleSheet, Navigator } from 'react-native';
 
 const firebase = require('./init/firebase').getConnection();
 
@@ -18,14 +13,18 @@ const ROUTES = {
   tweets: Tweets
 };
 
-module.exports = React.createClass({
-  componentWillMount: function() {},
-  renderScene: function(route, navigator) {
+class Practica extends Component {
+  constructor(props) {
+    super(props);
+    this.renderScene.bind(this);
+  }
+
+  renderScene(route, navigator) {
     const Component = ROUTES[route.name];
 
     return <Component route={route} navigator={navigator} firebase={firebase}/>;
-  },
-  render: function() {
+  }
+  render() {
     return (
       <Navigator
       style={[styles.container]}
@@ -35,10 +34,12 @@ module.exports = React.createClass({
       />
     );
   }
-});
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1
   }
 });
+
+module.exports = Practica;

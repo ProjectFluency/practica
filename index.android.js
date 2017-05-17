@@ -4,6 +4,7 @@ const {
   AppRegistry
 } = ReactNative;
 
-const Main = require('./src/main');
+const Practica = require('./src/practica');
 
-AppRegistry.registerComponent('Practica', () => Main)
+AppRegistry.registerComponent('Practica', () => Practica)
+
