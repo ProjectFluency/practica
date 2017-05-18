@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Navigator } from 'react-native';
+var codePush = require('react-native-code-push');
 
 const firebase = require('./init/firebase').getConnection();
 
@@ -42,4 +43,4 @@ const styles = StyleSheet.create({
   }
 });
 
-module.exports = Practica;
+module.exports = codePush(Practica);
