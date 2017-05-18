@@ -18,6 +18,8 @@ Once you go over to the right directory, type one of the following to install de
 
 `yarn`
 
+-OR-
+
 `npm install`
 
 # Running
