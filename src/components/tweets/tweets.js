@@ -3,6 +3,7 @@ const ReactNative = require('react-native');
 const moment = require('moment');
 import { GiftedChat } from 'react-native-gifted-chat';
 import Emoji from 'react-native-emoji';
+import { STATUS_BAR_HEIGHT } from '../../config/constants'
 
 const {
   View,
@@ -165,6 +166,7 @@ module.exports = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: STATUS_BAR_HEIGHT,
   },
   center: {
     justifyContent: 'center',
