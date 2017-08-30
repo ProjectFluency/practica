@@ -61,7 +61,7 @@ module.exports = React.createClass({
       AsyncStorage.setItem('@guff:username', response.email);
 
       this.props.navigator.immediatelyResetRouteStack([
-        {name: 'tweets'}
+        {name: 'chatview'}
       ]);
     })
     .catch((err) => {

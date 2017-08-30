@@ -6,12 +6,12 @@ const firebase = require('./init/firebase').getConnection();
 
 const Signin = require('./components/authentication/signin');
 const Signup = require('./components/authentication/signup');
-const Tweets = require('./components/tweets/tweets');
+const ChatView = require('./components/components/chat-view');
 
 const ROUTES = {
   signin: Signin,
   signup: Signup,
-  tweets: Tweets
+  chatview: ChatView
 };
 
 class Practica extends Component {
@@ -25,7 +25,7 @@ class Practica extends Component {
     return (
       <Navigator
         style={[styles.container]}
-        initialRoute={{ name: 'tweets' }}
+        initialRoute={{ name: 'chatview' }}
         renderScene={this.renderScene}
         configureScene={() => Navigator.SceneConfigs.FloatFromRight}
       />
