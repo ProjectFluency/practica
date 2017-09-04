@@ -51,22 +51,23 @@ Bubble = React.createClass({
       after();
   },
   styleForSayer: function(sayer) {
-    return (sayer === "Me" || sayer === "You") ?
+    return (sayer === "Me" || sayer === "I" || sayer==="You") ?
       styles.bubbleRight : styles.bubbleLeft;
   },
   render: function() {
     var bubbleStyle = this.styleForSayer(this.props.sayer);
-    var then = (this.props.convoStarted) ? "Then" : "";
+    // No "Then" for the first bubble
+    var then = (this.props.idx) ? "Then" : "";
     if (this.props.text) {
       return(
         <View style={[styles.colLayout, bubbleStyle]}>
-          <Text> {then} {this.props.sayer} said, </Text>
+          <Text> {then} {this.props.sayer} said: </Text>
           <Text> {this.props.text} </Text>
         </View>);
     } else  {
       return(
         <View style={[styles.colLayout, bubbleStyle]}>
-          <Text> {then} {this.props.sayer} said, </Text>
+          <Text> {then} {this.props.sayer} said: </Text>
           <View style={[styles.dashedBox]}>
             <TextInput
               ref={(i) => { this._input = i}}
@@ -85,12 +86,12 @@ ConversationRecorder = React.createClass({
   getInitialState: function() {
     return {
       convoStarted: false,
-      nextSayer: "You",
+      nextSayer: "I",
       convo: [],
     }
   },
   theOtherSayer: function() {
-    var sayerFlip = {"You": "They", "They": "You"};
+    var sayerFlip = {"I": "They", "They": "I"};
     return sayerFlip[this.state.nextSayer];
   },
   flipSayer: function() {
@@ -119,11 +120,11 @@ ConversationRecorder = React.createClass({
     var turnToBubble =  function(turn, index) {
       return (
           <Bubble key={index}
+                  idx={index}
                   ref={index}
                   text={turn.text}
                   sayer={turn.sayer}
-                  onSubmit={that.addToConvo}
-                  convoStarted={that.state.convoStarted}/>);
+                  onSubmit={that.addToConvo} />);
     };
     var convo = this.state.convo.concat([{text: "", sayer: this.state.nextSayer}]);
     return(
