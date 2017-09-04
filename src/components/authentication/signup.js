@@ -5,14 +5,13 @@ const API = require('../../config/API');
 const fetcher = require('../../util/fetcher');
 
 const {
+  Button,
   View,
   Text,
   StyleSheet,
   TextInput,
   AsyncStorage
 } = ReactNative;
-
-const Button = require('../common/button');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -54,8 +53,8 @@ module.exports = React.createClass({
       />
 
       <Text style={[styles.label]}>{this.state.errorMessage}</Text>
-      <Button text={'Sign Up'} onPress={this.onPress} />
-      <Button text={'I have an account...'} onPress={this.onSigninPress} />
+      <Button title={'Sign Up'} onPress={this.onPress} />
+      <Button title={'I have an account...'} onPress={this.onSigninPress} />
       </View>
     );
   },

@@ -23,7 +23,7 @@ const {
   ConversationRecorder,
   ConversationDisplay
 } = require('./convo-recorder.js');
-const Button = require('../common/button');
+const Button = require('./button.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
